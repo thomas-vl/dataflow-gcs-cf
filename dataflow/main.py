@@ -19,7 +19,7 @@ class MyOptions(PipelineOptions):
 
 with beam.Pipeline(options=MyOptions()) as p:
     table_schema = 'PassengerId:INTEGER,Survived:INTEGER'
-    print(p.options.input)
+    print(p.options.get_all_options())
     lines = (p  | 'read' >> ReadFromText(p.options.input)
                 | 'Write Data to BigQuery' >> WriteToBigQuery(
                         p.options.output,
