@@ -27,6 +27,7 @@ def run(argv=None):
             def process(self, element):
                 return [{'PassengerId':element[0],'Survived':element[1]}]
 
+        print(known_args.input)
         lines = (p  | 'read' >> ReadFromText(known_args.input)
                     | 'format' >> beam.ParDo(format_data())
                     | 'Write' >> beam.io.WriteToBigQuery(
