@@ -47,7 +47,6 @@ gcloud functions deploy start_dataflow --runtime python37 --trigger-resource $pr
 
 ##upload the file
 ```shell
-gcloud projects add-iam-policy-binding $project --member serviceAccount:$project@appspot.gserviceaccount.com --role roles/owner
 cd ~/dataflow-gcs-cf/
 gsutil cp titanic.csv gs://$project-df-files
 ```
