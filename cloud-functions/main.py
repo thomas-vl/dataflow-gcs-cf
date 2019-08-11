@@ -12,8 +12,8 @@ def start_dataflow(data, context):
 
     service = build('dataflow', 'v1b3', cache_discovery=False)
     service.projects().templates().launch(
-        projectId='experiment-center',
-        gcsPath='gs://experiment-center-df-template/templates/df-bq',
+        projectId=os.environ['GCP_PROJECT'],
+        gcsPath=f'gs://{os.environ['GCP_PROJECT']}-df-template/templates/df-bq',
         body={ 'parameters':{'input':f"gs://{data['bucket']}/{data['name']}" } }
         ).execute()
 

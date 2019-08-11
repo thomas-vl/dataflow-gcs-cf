@@ -40,8 +40,14 @@ gsutil ls gs://$project-df-template/templates/
 
 ## Deploy the function (from cloud-functions folder)
 ```shell
+gcloud services enable dataflow.googleapis.com --project $project
 cd ~/dataflow-gcs-cf/cloud-functions
 gcloud functions deploy start_dataflow --runtime python37 --trigger-resource $project-df-files --trigger-event google.storage.object.finalize --project $project --region $region
 ```
 
 ##upload the file
+```shell
+gcloud projects add-iam-policy-binding $project --member serviceAccount:$project@appspot.gserviceaccount.com --role roles/owner
+cd ~/dataflow-gcs-cf/
+gsutil cp titanic.csv gs://$project-df-files
+```
