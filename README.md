@@ -43,3 +43,5 @@ gsutil ls gs://$project-df-template/templates/
 cd ~/dataflow-gcs-cf/cloud-functions
 gcloud functions deploy start_dataflow --runtime python37 --trigger-resource $project-df-files --trigger-event google.storage.object.finalize --project $project --region $region
 ```
+
+##upload the file
