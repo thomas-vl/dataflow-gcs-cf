@@ -8,7 +8,7 @@ def start_dataflow(data, context):
     print('Metageneration: {}'.format(data['metageneration']))
     print('Created: {}'.format(data['timeCreated']))
     print('Updated: {}'.format(data['updated']))
-    print(f"gs://{data['bucket']}/{data['name']}")
+
 
     service = build('dataflow', 'v1b3', cache_discovery=False)
     service.projects().templates().launch(

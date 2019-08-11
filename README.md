@@ -1,17 +1,29 @@
-# dataflow-gcs-cf
-Install gcloud commandline tool
+Pre requisites:
+1) Have a gcp project with a linked billing account
+2) Open up cloud shell
 
-##Set variables
-EXPORT PROJECT="your-gcp-project-id"
-EXPORT LOCATION="gcp-location" #for example us-east1
+## Set variables
+export project="your-gcp-project-id" #change this to your project
+export region="your-gcp-region" #for example us-central1
+export bq_dataset="dataflow_example"
 
-##Create 2 buckets one for the files and one for the template
-gsutil mb -p $PROJECT -c regional -l $LOCATION -b on gs://$PROJECT-df-template/
-gsutil mb -p $PROJECT -c regional -l $LOCATION -b on gs://$PROJECT-df-files/
+## Create 2 buckets one for the files and one for the template
+gsutil mb -p $project -c regional -l $region -b on gs://$project-df-template/
+gsutil mb -p $project -c regional -l $region -b on gs://$project-df-files/
 
+## Create bigquery dataset
+bq mk --location=us --dataset $project:$bq_dataset
 
-##Deploy dataflow template
-python -m main --output 'experiment-center:test.test' --runner DataflowRunner --project experiment-center --staging_location gs://experiment-center-df-template/staging --temp_location gs://experiment-center-df-template/temp --template_location gs://experiment-center-df-template/templates/df-bq
+## Clone the repostiory files
+git clone https://github.com/thomas-vl/dataflow-gcs-cf.git
 
-##Deploy the function (from cloud-functions folder)
+## Deploy dataflow template
+sudo pip3 install apache-beam[gcp]
+cd ~/dataflow-gcs-cf/dataflow
+python3 -m main --output $project:$bq_dataset.example --runner DataflowRunner --project $project --staging_location gs://$project-df-template/staging --temp_location gs://$project-df-template/temp --template_location gs://$project-df-template/templates/df-bq
+
+validate if the template file exists:
+gsutil ls gs://$project-df-template/templates/
+
+## Deploy the function (from cloud-functions folder)
 gcloud functions deploy start_dataflow --runtime python37 --trigger-resource experiment-center-df-files --trigger-event google.storage.object.finalize --project experiment-center
