@@ -3,9 +3,11 @@ Pre requisites:
 2) Open up cloud shell
 
 ## Set variables
+```shell
 export project="your-gcp-project-id" #change this to your project
 export region="your-gcp-region" #for example us-central1
 export bq_dataset="dataflow_example"
+```
 
 ## Create 2 buckets one for the files and one for the template
 gsutil mb -p $project -c regional -l $region -b on gs://$project-df-template/
