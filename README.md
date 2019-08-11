@@ -27,9 +27,9 @@ git clone https://github.com/thomas-vl/dataflow-gcs-cf.git
 
 ## Deploy dataflow template
 ```shell
-sudo pip3 install apache-beam[gcp]
+sudo pip install apache-beam[gcp]
 cd ~/dataflow-gcs-cf/dataflow
-python3 -m main --output $project:$bq_dataset.example --runner DataflowRunner --project $project \
+python -m main --output $project:$bq_dataset.example --runner DataflowRunner --project $project \
  --staging_location gs://$project-df-template/staging --temp_location gs://$project-df-template/temp \
  --template_location gs://$project-df-template/templates/df-bq
 ```
