@@ -1,3 +1,4 @@
+import os
 from googleapiclient.discovery import build
 
 def start_dataflow(data, context):
@@ -9,11 +10,11 @@ def start_dataflow(data, context):
     print('Created: {}'.format(data['timeCreated']))
     print('Updated: {}'.format(data['updated']))
 
-
+    project = os.environ['GCP_PROJECT']
     service = build('dataflow', 'v1b3', cache_discovery=False)
     service.projects().templates().launch(
-        projectId=os.environ['GCP_PROJECT'],
-        gcsPath=f'gs://{os.environ['GCP_PROJECT']}-df-template/templates/df-bq',
+        projectId=project,
+        gcsPath=f"gs://{project}-df-template/templates/df-bq",
         body={ 'parameters':{'input':f"gs://{data['bucket']}/{data['name']}" } }
         ).execute()
 
