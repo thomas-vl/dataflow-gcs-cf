@@ -2,6 +2,14 @@ Pre requisites:
 1) Have a gcp project with a linked billing account
 2) Open up cloud shell
 
+3) have pip installed
+```shell
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+sudo apt-get install python3 python3-setuptools
+sudo python3 get-pip.py
+```
+
+
 ## Set variables
 ```shell
 export project="your-gcp-project-id" #change this to your project
