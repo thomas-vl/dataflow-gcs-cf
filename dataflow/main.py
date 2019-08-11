@@ -5,8 +5,9 @@ from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.value_provider import StaticValueProvider
 from apache_beam.io.gcp.bigquery import parse_table_schema_from_json
 from apache_beam.io import ReadFromText
-from apache_beam.io.gcp.bigquery import WriteToBigQuery
+from apache_beam.io.gcp.bigquery import BigQuerySink
 from apache_beam.io.gcp.bigquery import BigQueryDisposition
+from apache_beam.io.gcp.internal.clients import bigquery
 
 def run(argv=None):
     parser = argparse.ArgumentParser()
@@ -21,18 +22,23 @@ def run(argv=None):
     pipeline_options = PipelineOptions(pipeline_args)
 
     with beam.Pipeline(options=pipeline_options) as p:
-        table_schema = 'PassengerId:INTEGER,Survived:INTEGER'
-        print(known_args.input)
+
+        class format_data(beam.DoFn):
+            def process(self, element):
+                return [{'PassengerId':element[0],'Survived':element[1]}]
+
         lines = (p  | 'read' >> ReadFromText(known_args.input)
-                    | 'Write Data to BigQuery' >> WriteToBigQuery(
-                            known_args.output,
-                            schema=table_schema,
-                            create_disposition=BigQueryDisposition.CREATE_IF_NEEDED,
-                            write_disposition=BigQueryDisposition.WRITE_TRUNCATE))
+                    | 'format' >> beam.ParDo(format_data())
+                    | 'Write' >> beam.io.WriteToBigQuery(
+                        known_args.output,
+                        schema='PassengerId:INTEGER, Survived:INTEGER',
+                        create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
+                        write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE,
+                        batch_size=100))
 
         result = p.run()
         result.wait_until_finish()
 
 if __name__ == '__main__':
-    logging.getLogger().setLevel(logging.INFO)
+    logging.getLogger().setLevel(logging.WARN)
     run()
