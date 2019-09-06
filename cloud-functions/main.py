@@ -1,6 +1,49 @@
 import os
 from googleapiclient.discovery import build
 
+from google.cloud import bigquery
+from google.cloud import exceptions
+from google.cloud import storage
+import csv
+
+def load_tsv(data, context):
+    client = bigquery.Client()
+    storage_client = storage.Client()
+
+    bucket = storage_client.get_bucket(data['bucket'])
+    blob = bucket.get_blob(data['name'])
+    tsv_file = blob.download_to_file('test.tsv')
+
+    csv.DictReader(tsv_file, dialect='Excel-Tab')
+
+    rows = [{'date':'2019-03-01', 'page':'url'}]
+
+    table_name = 'table_name'
+    dataset = 'sample_data'
+    project = 'project-id'
+
+    schema = [
+            bigquery.SchemaField("date", "DATE", mode="REQUIRED"),
+            bigquery.SchemaField("page", "STRING", mode="NULLABLE"),
+            bigquery.SchemaField("query", "STRING", mode="NULLABLE"),
+            bigquery.SchemaField("clicks", "FLOAT", mode="REQUIRED"),
+            bigquery.SchemaField("impressions", "FLOAT", mode="REQUIRED"),
+            bigquery.SchemaField("ctr", "FLOAT", mode="REQUIRED"),
+            bigquery.SchemaField("position", "FLOAT", mode="REQUIRED"),
+    ]
+    table_ref = bigquery.Table(f"{project}.{dataset}.{table_name}",schema=schema)
+
+    try:
+        table = client.get_table(table_ref)
+    except exceptions.NotFound:
+        table = client.create_table(table_ref)
+
+    client.insert_rows_json(table, rows, ignore_unknown_values=True)
+
+#gcloud functions deploy load_tsv --runtime python37 --trigger-resource experiment-center-df-files --trigger-event google.storage.object.finalize --project experiment-center
+
+
+
 def start_dataflow(data, context):
     print('Event ID: {}'.format(context.event_id))
     print('Event type: {}'.format(context.event_type))
